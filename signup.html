@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - Spherely</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .signup-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        h1 {
+            text-align: center;
+            color: #1877f2;
+            font-size: 30px;
+            margin-bottom: 30px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1877f2;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #165eab;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h1>إنشاء حساب جديد</h1>
+        <form id="signupForm">
+            <input type="text" class="input-field" id="username" placeholder="اسم المستخدم" required>
+            <input type="password" class="input-field" id="password" placeholder="كلمة المرور" required>
+            <input type="password" class="input-field" id="confirmPassword" placeholder="تأكيد كلمة المرور" required>
+            <button type="submit" class="button">إنشاء حساب</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2i7QSJMpN_GUH44s6FCa4FPd4CcacjQU",
+            authDomain: "aslaa-aadd9.firebaseapp.com",
+            databaseURL: "https://aslaa-aadd9-default-rtdb.firebaseio.com",
+            projectId: "aslaa-aadd9",
+            storageBucket: "aslaa-aadd9.appspot.com",
+            messagingSenderId: "862690377553",
+            appId: "1:862690377553:web:1addb4ee0d8b4a5f589d70",
+            measurementId: "G-RKNKL008R3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        document.getElementById("signupForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (password !== confirmPassword) {
+                alert("كلمات المرور غير متطابقة!");
+                return;
+            }
+
+            const email = `${username}@example.com`;  // افتراضياً نستخدم email بناءً على اسم المستخدم
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+
+                    // إضافة بيانات المستخدم إلى قاعدة البيانات
+                    set(ref(database, 'users/' + user.uid), {
+                        username: username,
+                        email: email
+                    }).then(() => {
+                        alert("تم إنشاء الحساب بنجاح!");
+                        window.location.href = "login.html";  // التوجيه لصفحة تسجيل الدخول
+                    }).catch((error) => {
+                        alert("حدث خطأ أثناء إضافة بيانات المستخدم: " + error.message);
+                    });
+                })
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    alert("خطأ في إنشاء الحساب: " + errorMessage);
+                });
+        });
+    </script>
+
+</body></html>

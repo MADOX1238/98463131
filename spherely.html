@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - Spherely</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        h1 {
+            text-align: center;
+            color: #1877f2;
+            font-size: 30px;
+            margin-bottom: 30px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1877f2;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #165eab;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .register-link a {
+            color: #1877f2;
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>تسجيل الدخول</h1>
+        <form id="loginForm">
+            <input type="text" class="input-field" id="username" placeholder="اسم المستخدم" required>
+            <input type="password" class="input-field" id="password" placeholder="كلمة المرور" required>
+            <button type="submit" class="button">تسجيل الدخول</button>
+        </form>
+
+        <div class="register-link">
+            <p>ليس لديك حساب؟ <a href="signup.html">إنشاء حساب جديد</a></p>
+        </div>
+    </div>
+
+    <script type="module">
+        // استيراد الوظائف من Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2i7QSJMpN_GUH44s6FCa4FPd4CcacjQU",
+            authDomain: "aslaa-aadd9.firebaseapp.com",
+            databaseURL: "https://aslaa-aadd9-default-rtdb.firebaseio.com",
+            projectId: "aslaa-aadd9",
+            storageBucket: "aslaa-aadd9.appspot.com",  // تأكد من أن هذا صحيح
+            messagingSenderId: "862690377553",
+            appId: "1:862690377553:web:1addb4ee0d8b4a5f589d70",
+            measurementId: "G-RKNKL008R3"
+        };
+
+        // تهيئة Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);  // تأكد من أن auth يتصل بتطبيق Firebase
+        const database = getDatabase(app);
+
+        // إضافة حدث عند إرسال النموذج
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // تحويل اسم المستخدم إلى بريد إلكتروني افتراضي (مثل: username@example.com)
+            const email = `${username}@example.com`;
+
+            // تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // تم تسجيل الدخول بنجاح
+                    const user = userCredential.user;
+
+                    // التحقق من البيانات في قاعدة البيانات
+                    get(ref(database, 'users/' + user.uid))
+                        .then((snapshot) => {
+                            if (snapshot.exists()) {
+                                // تم التحقق بنجاح من بيانات المستخدم
+                                alert("تم تسجيل الدخول بنجاح!");
+                                window.location.href = "dashboard.html";  // توجيه إلى الصفحة الرئيسية
+                            } else {
+                                alert("المستخدم غير موجود في قاعدة البيانات!");
+                            }
+                        })
+                        .catch((error) => {
+                            alert("حدث خطأ عند التحقق من البيانات: " + error.message);
+                        });
+                })
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    alert("خطأ في تسجيل الدخول: " + errorMessage);
+                });
+        });
+    </script>
+
+</body></html>
